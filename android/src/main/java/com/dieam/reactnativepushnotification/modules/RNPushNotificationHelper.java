@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -156,8 +157,14 @@ public class RNPushNotificationHelper {
                 ApplicationInfo appInfo = context.getApplicationInfo();
                 title = context.getPackageManager().getApplicationLabel(appInfo).toString();
             }
-
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(context)
+            NotificationManager notificationManager = notificationManager();
+            if (Build.VERSION.SDK_INT >= 26) {
+                NotificationChannel channel = new NotificationChannel("default", "Wayke",
+                        NotificationManager.IMPORTANCE_HIGH);
+                channel.setDescription("Wayke messages");
+                notificationManager.createNotificationChannel(channel);
+            }
+            NotificationCompat.Builder notification = new NotificationCompat.Builder(context, "default")
                     .setContentTitle(title)
                     .setTicker(bundle.getString("ticker"))
                     .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
@@ -270,8 +277,6 @@ public class RNPushNotificationHelper {
 
             PendingIntent pendingIntent = PendingIntent.getActivity(context, notificationID, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
-
-            NotificationManager notificationManager = notificationManager();
 
             notification.setContentIntent(pendingIntent);
 
